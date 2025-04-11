@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -14,6 +16,6 @@ public class UserResponse {
     private String email;
     private String soDienThoai;
     private String vaiTro;
-    private Integer namSinh;
+    private LocalDate namSinh;
     private Boolean trangThai;
 }

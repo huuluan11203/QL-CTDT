@@ -9,8 +9,7 @@ import java.time.LocalDate;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserCreationRequest {
-    private String username;
+public class UserUpdateRequest {
     private String password;
     private String hoTen;
     private String email;

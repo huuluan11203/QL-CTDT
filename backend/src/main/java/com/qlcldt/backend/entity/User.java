@@ -1,10 +1,12 @@
 package com.qlcldt.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -34,9 +36,10 @@ public class User {
     
     @Column(name = "vai_tro", length = 30)
     private String vaiTro;
-    
+
     @Column(name = "nam_sinh")
-    private Integer namSinh;
+    private LocalDate namSinh;
+
     
     @Column(name = "trang_thai")
     private Boolean trangThai;
