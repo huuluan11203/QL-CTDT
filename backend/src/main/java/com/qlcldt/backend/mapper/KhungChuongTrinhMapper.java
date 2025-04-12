@@ -5,10 +5,12 @@ import com.qlcldt.backend.dto.response.KhungChuongTrinhResponse;
 import com.qlcldt.backend.entity.KhungChuongTrinh;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface KhungChuongTrinhMapper {
     @Mapping(target = "id", ignore = true)
     KhungChuongTrinh toEntity(KhungChuongTrinhRequest request);
     KhungChuongTrinhResponse toResponse(KhungChuongTrinh entity);
+    void updateKhungChuongTrinh(@MappingTarget KhungChuongTrinh khungChuongTrinh, KhungChuongTrinhRequest request);
 }

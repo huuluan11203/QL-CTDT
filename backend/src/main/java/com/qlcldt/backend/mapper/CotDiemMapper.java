@@ -5,10 +5,12 @@ import com.qlcldt.backend.dto.response.CotDiemResponse;
 import com.qlcldt.backend.entity.CotDiem;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface CotDiemMapper {
     @Mapping(target = "id", ignore = true)
     CotDiem toEntity(CotDiemRequest request);
     CotDiemResponse toResponse(CotDiem entity);
+    void updateCotDiem(@MappingTarget CotDiem cotDiem, CotDiemRequest request);
 }

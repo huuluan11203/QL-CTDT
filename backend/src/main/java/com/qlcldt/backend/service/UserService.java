@@ -29,26 +29,26 @@ public class UserService {
     PasswordEncoder passwordEncoder;
 
     public UserResponse createUser(UserCreationRequest request){
-        User user = userMapper.toUser(request);
+        User user = userMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         try {
             user = userRepository.save(user);
         } catch (DataIntegrityViolationException exception){
             throw new AppException(ErrorCode.USER_EXISTED);
         }
-        return userMapper.toUserResponse(user);
+        return userMapper.toResponse(user);
     }
 
     public UserResponse getUserById(Integer id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
-        return userMapper.toUserResponse(user);
+        return userMapper.toResponse(user);
     }
 
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll()
                 .stream()
-                .map(userMapper::toUserResponse)
+                .map(userMapper::toResponse)
                 .toList();
     }
 
@@ -60,7 +60,14 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         user = userRepository.save(user);
-        return userMapper.toUserResponse(user);
+        return userMapper.toResponse(user);
+    }
+
+    public void deleteUser(Integer id) {
+        if (!userRepository.existsById(id)) {
+            throw new AppException(ErrorCode.USER_NOT_EXISTED);
+        }
+        userRepository.deleteById(id);
     }
 
 }

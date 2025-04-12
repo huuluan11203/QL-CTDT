@@ -5,10 +5,12 @@ import com.qlcldt.backend.dto.response.HocPhanResponse;
 import com.qlcldt.backend.entity.HocPhan;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface HocPhanMapper {
     @Mapping(target = "id", ignore = true)
     HocPhan toEntity(HocPhanRequest request);
     HocPhanResponse toResponse(HocPhan entity);
+    void updateHocPhan(@MappingTarget HocPhan hocPhan, HocPhanRequest request);
 }

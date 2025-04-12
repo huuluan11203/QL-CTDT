@@ -1,6 +1,5 @@
 package com.qlcldt.backend.controller;
 
-
 import com.qlcldt.backend.dto.request.UserCreationRequest;
 import com.qlcldt.backend.dto.request.UserUpdateRequest;
 import com.qlcldt.backend.dto.response.ApiResponse;
@@ -29,6 +28,7 @@ public class UserController {
                 .result(userService.createUser(request))
                 .build();
     }
+
     @PutMapping("/{userId}")
     ApiResponse<UserResponse> updateUser(@PathVariable Integer userId, @RequestBody @Valid UserUpdateRequest request) {
         return ApiResponse.<UserResponse>builder()
@@ -40,6 +40,21 @@ public class UserController {
     ApiResponse<List<UserResponse>> getUsers() {
         return ApiResponse.<List<UserResponse>>builder()
                 .result(userService.getAllUsers())
+                .build();
+    }
+
+    @GetMapping("/{userId}")
+    ApiResponse<UserResponse> getUser(@PathVariable Integer userId) {
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.getUserById(userId))
+                .build();
+    }
+
+    @DeleteMapping("/{userId}")
+    ApiResponse<String> deleteUser(@PathVariable Integer userId) {
+        userService.deleteUser(userId);
+        return ApiResponse.<String>builder()
+                .result("User has been deleted.")
                 .build();
     }
 }
