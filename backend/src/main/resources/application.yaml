@@ -7,9 +7,9 @@ server:
 
 spring:
   datasource:
-    url: "jdbc:mysql://127.0.0.1:3303/chuong_trinh_dao_tao"
+    url: "jdbc:mysql://127.0.0.1:2434/chuong_trinh_dao_tao"
     username: root
-    password: 1234
+    password:
   jpa:
     hibernate:
       ddl-auto: none
