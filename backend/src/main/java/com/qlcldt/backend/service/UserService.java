@@ -1,5 +1,6 @@
 package com.qlcldt.backend.service;
 
+import com.qlcldt.backend.dto.request.LoginRequest;
 import com.qlcldt.backend.dto.request.UserCreationRequest;
 import com.qlcldt.backend.dto.request.UserUpdateRequest;
 import com.qlcldt.backend.dto.response.UserResponse;
@@ -34,14 +35,14 @@ public class UserService {
         try {
             user = userRepository.save(user);
         } catch (DataIntegrityViolationException exception){
-            throw new AppException(ErrorCode.USER_EXISTED);
+            throw new AppException(ErrorCode.EXISTED);
         }
         return userMapper.toResponse(user);
     }
 
     public UserResponse getUserById(Integer id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_EXISTED));
         return userMapper.toResponse(user);
     }
 
@@ -54,7 +55,7 @@ public class UserService {
 
     public UserResponse updateUser(Integer id, UserUpdateRequest request) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_EXISTED));
 
         userMapper.updateUser(user, request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -65,9 +66,18 @@ public class UserService {
 
     public void deleteUser(Integer id) {
         if (!userRepository.existsById(id)) {
-            throw new AppException(ErrorCode.USER_NOT_EXISTED);
+            throw new AppException(ErrorCode.NOT_EXISTED);
         }
         userRepository.deleteById(id);
+    }
+
+    public UserResponse login(LoginRequest request){
+        User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_EXISTED));
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new AppException(ErrorCode.INVALID_CREDENTIALS);
+        }
+        return userMapper.toResponse(user);
     }
 
 }

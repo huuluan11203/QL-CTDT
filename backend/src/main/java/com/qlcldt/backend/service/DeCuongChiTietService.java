@@ -10,6 +10,7 @@ import com.qlcldt.backend.repository.DeCuongChiTietRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,13 +24,18 @@ public class DeCuongChiTietService {
 
     public DeCuongChiTietResponse createDeCuongChiTiet(DeCuongChiTietRequest request) {
         DeCuongChiTiet deCuongChiTiet = deCuongChiTietMapper.toEntity(request);
-        deCuongChiTiet = deCuongChiTietRepository.save(deCuongChiTiet);
+        try {
+            deCuongChiTiet = deCuongChiTietRepository.save(deCuongChiTiet);
+        } catch (DataIntegrityViolationException exception) {
+            throw new AppException(ErrorCode.EXISTED);
+        }
+
         return deCuongChiTietMapper.toResponse(deCuongChiTiet);
     }
 
     public DeCuongChiTietResponse getDeCuongChiTietById(Integer id) {
         DeCuongChiTiet deCuongChiTiet = deCuongChiTietRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_EXISTED));
         return deCuongChiTietMapper.toResponse(deCuongChiTiet);
     }
 
@@ -42,7 +48,7 @@ public class DeCuongChiTietService {
 
     public DeCuongChiTietResponse updateDeCuongChiTiet(Integer id, DeCuongChiTietRequest request) {
         DeCuongChiTiet deCuongChiTiet = deCuongChiTietRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_EXISTED));
         deCuongChiTietMapper.updateDeCuongChiTiet(deCuongChiTiet, request);
         deCuongChiTiet = deCuongChiTietRepository.save(deCuongChiTiet);
         return deCuongChiTietMapper.toResponse(deCuongChiTiet);
@@ -50,7 +56,7 @@ public class DeCuongChiTietService {
 
     public void deleteDeCuongChiTiet(Integer id) {
         if (!deCuongChiTietRepository.existsById(id)) {
-            throw new AppException(ErrorCode.USER_NOT_EXISTED);
+            throw new AppException(ErrorCode.NOT_EXISTED);
         }
         deCuongChiTietRepository.deleteById(id);
     }

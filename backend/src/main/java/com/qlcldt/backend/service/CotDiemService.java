@@ -10,6 +10,7 @@ import com.qlcldt.backend.repository.CotDiemRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,13 +24,18 @@ public class CotDiemService {
 
     public CotDiemResponse createCotDiem(CotDiemRequest request) {
         CotDiem cotDiem = cotDiemMapper.toEntity(request);
-        cotDiem = cotDiemRepository.save(cotDiem);
+        try {
+            cotDiem = cotDiemRepository.save(cotDiem);
+        } catch (DataIntegrityViolationException exception) {
+            throw new AppException(ErrorCode.EXISTED);
+        }
+
         return cotDiemMapper.toResponse(cotDiem);
     }
 
     public CotDiemResponse getCotDiemById(Integer id) {
         CotDiem cotDiem = cotDiemRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_EXISTED));
         return cotDiemMapper.toResponse(cotDiem);
     }
 
@@ -42,7 +48,7 @@ public class CotDiemService {
 
     public CotDiemResponse updateCotDiem(Integer id, CotDiemRequest request) {
         CotDiem cotDiem = cotDiemRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_EXISTED));
         cotDiemMapper.updateCotDiem(cotDiem, request);
         cotDiem = cotDiemRepository.save(cotDiem);
         return cotDiemMapper.toResponse(cotDiem);
@@ -50,7 +56,7 @@ public class CotDiemService {
 
     public void deleteCotDiem(Integer id) {
         if (!cotDiemRepository.existsById(id)) {
-            throw new AppException(ErrorCode.USER_NOT_EXISTED);
+            throw new AppException(ErrorCode.NOT_EXISTED);
         }
         cotDiemRepository.deleteById(id);
     }

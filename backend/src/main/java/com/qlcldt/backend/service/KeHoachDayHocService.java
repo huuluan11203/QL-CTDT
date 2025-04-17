@@ -10,6 +10,7 @@ import com.qlcldt.backend.repository.KeHoachDayHocRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,13 +24,17 @@ public class KeHoachDayHocService {
 
     public KeHoachDayHocResponse createKeHoachDayHoc(KeHoachDayHocRequest request) {
         KeHoachDayHoc keHoachDayHoc = keHoachDayHocMapper.toEntity(request);
-        keHoachDayHoc = keHoachDayHocRepository.save(keHoachDayHoc);
+        try {
+            keHoachDayHoc = keHoachDayHocRepository.save(keHoachDayHoc);
+        } catch (DataIntegrityViolationException exception) {
+            throw new AppException(ErrorCode.EXISTED);
+        }
         return keHoachDayHocMapper.toResponse(keHoachDayHoc);
     }
 
     public KeHoachDayHocResponse getKeHoachDayHocById(Integer id) {
         KeHoachDayHoc keHoachDayHoc = keHoachDayHocRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_EXISTED));
         return keHoachDayHocMapper.toResponse(keHoachDayHoc);
     }
 
@@ -42,7 +47,7 @@ public class KeHoachDayHocService {
 
     public KeHoachDayHocResponse updateKeHoachDayHoc(Integer id, KeHoachDayHocRequest request) {
         KeHoachDayHoc keHoachDayHoc = keHoachDayHocRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_EXISTED));
         keHoachDayHocMapper.updateKeHoachDayHoc(keHoachDayHoc, request);
         keHoachDayHoc = keHoachDayHocRepository.save(keHoachDayHoc);
         return keHoachDayHocMapper.toResponse(keHoachDayHoc);
@@ -50,7 +55,7 @@ public class KeHoachDayHocService {
 
     public void deleteKeHoachDayHoc(Integer id) {
         if (!keHoachDayHocRepository.existsById(id)) {
-            throw new AppException(ErrorCode.USER_NOT_EXISTED);
+            throw new AppException(ErrorCode.NOT_EXISTED);
         }
         keHoachDayHocRepository.deleteById(id);
     }

@@ -10,6 +10,7 @@ import com.qlcldt.backend.repository.GiangVienRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,13 +24,18 @@ public class GiangVienService {
 
     public GiangVienResponse createGiangVien(GiangVienRequest request) {
         GiangVien giangVien = giangVienMapper.toEntity(request);
-        giangVien = giangVienRepository.save(giangVien);
+        try {
+            giangVien = giangVienRepository.save(giangVien);
+        } catch (DataIntegrityViolationException exception) {
+            throw new AppException(ErrorCode.EXISTED);
+        }
+
         return giangVienMapper.toResponse(giangVien);
     }
 
     public GiangVienResponse getGiangVienById(Integer id) {
         GiangVien giangVien = giangVienRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_EXISTED));
         return giangVienMapper.toResponse(giangVien);
     }
 
@@ -42,7 +48,7 @@ public class GiangVienService {
 
     public GiangVienResponse updateGiangVien(Integer id, GiangVienRequest request) {
         GiangVien giangVien = giangVienRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_EXISTED));
         giangVienMapper.updateGiangVien(giangVien, request);
         giangVien = giangVienRepository.save(giangVien);
         return giangVienMapper.toResponse(giangVien);
@@ -50,7 +56,7 @@ public class GiangVienService {
 
     public void deleteGiangVien(Integer id) {
         if (!giangVienRepository.existsById(id)) {
-            throw new AppException(ErrorCode.USER_NOT_EXISTED);
+            throw new AppException(ErrorCode.NOT_EXISTED);
         }
         giangVienRepository.deleteById(id);
     }

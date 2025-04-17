@@ -1,5 +1,6 @@
 package com.qlcldt.backend.controller;
 
+import com.qlcldt.backend.dto.request.LoginRequest;
 import com.qlcldt.backend.dto.request.UserCreationRequest;
 import com.qlcldt.backend.dto.request.UserUpdateRequest;
 import com.qlcldt.backend.dto.response.ApiResponse;
@@ -55,6 +56,13 @@ public class UserController {
         userService.deleteUser(userId);
         return ApiResponse.<String>builder()
                 .result("User has been deleted.")
+                .build();
+    }
+
+    @PostMapping("/login")
+    ApiResponse<UserResponse> login(@RequestBody LoginRequest request){
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.login(request))
                 .build();
     }
 }

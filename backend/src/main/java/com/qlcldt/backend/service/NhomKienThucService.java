@@ -10,6 +10,7 @@ import com.qlcldt.backend.repository.NhomKienThucRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,13 +24,17 @@ public class NhomKienThucService {
 
     public NhomKienThucResponse createNhomKienThuc(NhomKienThucRequest request) {
         NhomKienThuc nhomKienThuc = nhomKienThucMapper.toEntity(request);
-        nhomKienThuc = nhomKienThucRepository.save(nhomKienThuc);
+        try {
+            nhomKienThuc = nhomKienThucRepository.save(nhomKienThuc);
+        } catch (DataIntegrityViolationException exception) {
+            throw new AppException(ErrorCode.EXISTED);
+        }
         return nhomKienThucMapper.toResponse(nhomKienThuc);
     }
 
     public NhomKienThucResponse getNhomKienThucById(Integer id) {
         NhomKienThuc nhomKienThuc = nhomKienThucRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_EXISTED));
         return nhomKienThucMapper.toResponse(nhomKienThuc);
     }
 
@@ -42,7 +47,7 @@ public class NhomKienThucService {
 
     public NhomKienThucResponse updateNhomKienThuc(Integer id, NhomKienThucRequest request) {
         NhomKienThuc nhomKienThuc = nhomKienThucRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_EXISTED));
         nhomKienThucMapper.updateNhomKienThuc(nhomKienThuc, request);
         nhomKienThuc = nhomKienThucRepository.save(nhomKienThuc);
         return nhomKienThucMapper.toResponse(nhomKienThuc);
@@ -50,7 +55,7 @@ public class NhomKienThucService {
 
     public void deleteNhomKienThuc(Integer id) {
         if (!nhomKienThucRepository.existsById(id)) {
-            throw new AppException(ErrorCode.USER_NOT_EXISTED);
+            throw new AppException(ErrorCode.NOT_EXISTED);
         }
         nhomKienThucRepository.deleteById(id);
     }

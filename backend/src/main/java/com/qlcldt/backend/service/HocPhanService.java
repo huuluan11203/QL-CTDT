@@ -10,6 +10,7 @@ import com.qlcldt.backend.repository.HocPhanRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,13 +24,18 @@ public class HocPhanService {
 
     public HocPhanResponse createHocPhan(HocPhanRequest request) {
         HocPhan hocPhan = hocPhanMapper.toEntity(request);
-        hocPhan = hocPhanRepository.save(hocPhan);
+        try {
+            hocPhan = hocPhanRepository.save(hocPhan);
+        } catch (DataIntegrityViolationException exception) {
+            throw new AppException(ErrorCode.EXISTED);
+        }
+
         return hocPhanMapper.toResponse(hocPhan);
     }
 
     public HocPhanResponse getHocPhanById(Integer id) {
         HocPhan hocPhan = hocPhanRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_EXISTED));
         return hocPhanMapper.toResponse(hocPhan);
     }
 
@@ -42,7 +48,7 @@ public class HocPhanService {
 
     public HocPhanResponse updateHocPhan(Integer id, HocPhanRequest request) {
         HocPhan hocPhan = hocPhanRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_EXISTED));
         hocPhanMapper.updateHocPhan(hocPhan, request);
         hocPhan = hocPhanRepository.save(hocPhan);
         return hocPhanMapper.toResponse(hocPhan);
@@ -50,7 +56,7 @@ public class HocPhanService {
 
     public void deleteHocPhan(Integer id) {
         if (!hocPhanRepository.existsById(id)) {
-            throw new AppException(ErrorCode.USER_NOT_EXISTED);
+            throw new AppException(ErrorCode.NOT_EXISTED);
         }
         hocPhanRepository.deleteById(id);
     }

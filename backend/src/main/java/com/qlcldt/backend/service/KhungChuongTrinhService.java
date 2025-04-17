@@ -10,6 +10,7 @@ import com.qlcldt.backend.repository.KhungChuongTrinhRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,13 +24,17 @@ public class KhungChuongTrinhService {
 
     public KhungChuongTrinhResponse createKhungChuongTrinh(KhungChuongTrinhRequest request) {
         KhungChuongTrinh khungChuongTrinh = khungChuongTrinhMapper.toEntity(request);
-        khungChuongTrinh = khungChuongTrinhRepository.save(khungChuongTrinh);
+        try {
+            khungChuongTrinh = khungChuongTrinhRepository.save(khungChuongTrinh);
+        } catch (DataIntegrityViolationException exception) {
+            throw new AppException(ErrorCode.EXISTED);
+        }
         return khungChuongTrinhMapper.toResponse(khungChuongTrinh);
     }
 
     public KhungChuongTrinhResponse getKhungChuongTrinhById(Integer id) {
         KhungChuongTrinh khungChuongTrinh = khungChuongTrinhRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_EXISTED));
         return khungChuongTrinhMapper.toResponse(khungChuongTrinh);
     }
 
@@ -42,7 +47,7 @@ public class KhungChuongTrinhService {
 
     public KhungChuongTrinhResponse updateKhungChuongTrinh(Integer id, KhungChuongTrinhRequest request) {
         KhungChuongTrinh khungChuongTrinh = khungChuongTrinhRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_EXISTED));
         khungChuongTrinhMapper.updateKhungChuongTrinh(khungChuongTrinh, request);
         khungChuongTrinh = khungChuongTrinhRepository.save(khungChuongTrinh);
         return khungChuongTrinhMapper.toResponse(khungChuongTrinh);
@@ -50,7 +55,7 @@ public class KhungChuongTrinhService {
 
     public void deleteKhungChuongTrinh(Integer id) {
         if (!khungChuongTrinhRepository.existsById(id)) {
-            throw new AppException(ErrorCode.USER_NOT_EXISTED);
+            throw new AppException(ErrorCode.NOT_EXISTED);
         }
         khungChuongTrinhRepository.deleteById(id);
     }

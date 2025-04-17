@@ -10,6 +10,7 @@ import com.qlcldt.backend.repository.KhungChuongTrinhNhomKienThucRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,13 +24,17 @@ public class KhungChuongTrinhNhomKienThucService {
 
     public KhungChuongTrinhNhomKienThucResponse create(KhungChuongTrinhNhomKienThucRequest request) {
         KhungChuongTrinhNhomKienThuc entity = mapper.toEntity(request);
-        entity = repository.save(entity);
+        try {
+            entity = repository.save(entity);
+        } catch (DataIntegrityViolationException exception) {
+            throw new AppException(ErrorCode.EXISTED);
+        }
         return mapper.toResponse(entity);
     }
 
     public KhungChuongTrinhNhomKienThucResponse getById(Integer id) {
         KhungChuongTrinhNhomKienThuc entity = repository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_EXISTED));
         return mapper.toResponse(entity);
     }
 
@@ -42,7 +47,7 @@ public class KhungChuongTrinhNhomKienThucService {
 
     public KhungChuongTrinhNhomKienThucResponse update(Integer id, KhungChuongTrinhNhomKienThucRequest request) {
         KhungChuongTrinhNhomKienThuc entity = repository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_EXISTED));
         mapper.update(entity, request);
         entity = repository.save(entity);
         return mapper.toResponse(entity);
@@ -50,7 +55,7 @@ public class KhungChuongTrinhNhomKienThucService {
 
     public void delete(Integer id) {
         if (!repository.existsById(id)) {
-            throw new AppException(ErrorCode.USER_NOT_EXISTED);
+            throw new AppException(ErrorCode.NOT_EXISTED);
         }
         repository.deleteById(id);
     }

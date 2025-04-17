@@ -10,6 +10,7 @@ import com.qlcldt.backend.repository.ThongTinChungRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,13 +24,17 @@ public class ThongTinChungService {
 
     public ThongTinChungResponse createThongTinChung(ThongTinChungRequest request) {
         ThongTinChung thongTinChung = thongTinChungMapper.toEntity(request);
-        thongTinChung = thongTinChungRepository.save(thongTinChung);
+        try {
+            thongTinChung = thongTinChungRepository.save(thongTinChung);
+        } catch (DataIntegrityViolationException exception) {
+            throw new AppException(ErrorCode.EXISTED);
+        }
         return thongTinChungMapper.toResponse(thongTinChung);
     }
 
     public ThongTinChungResponse getThongTinChungById(Integer id) {
         ThongTinChung thongTinChung = thongTinChungRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_EXISTED));
         return thongTinChungMapper.toResponse(thongTinChung);
     }
 
@@ -42,7 +47,7 @@ public class ThongTinChungService {
 
     public ThongTinChungResponse updateThongTinChung(Integer id, ThongTinChungRequest request) {
         ThongTinChung thongTinChung = thongTinChungRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_EXISTED));
         thongTinChungMapper.updateThongTinChung(thongTinChung, request);
         thongTinChung = thongTinChungRepository.save(thongTinChung);
         return thongTinChungMapper.toResponse(thongTinChung);
@@ -50,7 +55,7 @@ public class ThongTinChungService {
 
     public void deleteThongTinChung(Integer id) {
         if (!thongTinChungRepository.existsById(id)) {
-            throw new AppException(ErrorCode.USER_NOT_EXISTED);
+            throw new AppException(ErrorCode.NOT_EXISTED);
         }
         thongTinChungRepository.deleteById(id);
     }
